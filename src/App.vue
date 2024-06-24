@@ -1,24 +1,29 @@
 <script setup>
 import { ref, onMounted, computed, watch } from "vue";
 
+// the variables are initiated here
 const todos = ref([]);
 const name = ref("");
 
+// the inputs are declared here
 const input_content = ref("");
 const input_category = ref(null);
 
+// this sorts the todos
 const todos_asc = computed(() =>
   todos.value.sort((a, b) => {
     return a.createdAt - b.createdAt;
   })
 );
 
+// this function creates and adds a todo item
 const addTodo = () => {
+  // this checks to make sure the content field is not empty or just spaces.
   if (input_content.value.trim() === "" || input_category.value === null) {
     console.log("Please enter a task.");
     return;
   }
-
+  // this grabs the values of all the inputs and creates an object that is then pushed to the todos
   todos.value.push({
     content: input_content.value,
     category: input_category.value,
@@ -26,11 +31,14 @@ const addTodo = () => {
     createdAt: new Date().getTime(),
   });
 
+  // this clears the values in the input fields after a todo is added
   input_content.value = "";
   input_category.value = null;
 };
 
+// this removes the selected todo
 const removeTodo = (todo) => {
+  // re-assigns todo as itself without that specific task that was requested to be deleted.
   todos.value = todos.value.filter((t) => t !== todo);
 };
 
@@ -38,6 +46,7 @@ const removeTodo = (todo) => {
 watch(
   todos,
   (newVal) => {
+    // this stores in local storage. Seems to work in key value pairs
     localStorage.setItem("todos", JSON.stringify(newVal));
   },
   // this tells it to also look inside of todos to see if any element or item(s) in it change.
@@ -48,11 +57,20 @@ watch(name, (newVal) => {
   localStorage.setItem("name", newVal);
 });
 
+// this is kind of like useEffect in react. It runs when the app is loaded or refreeshed (mounted)
 onMounted(() => {
+  // below lines of code grab the name and todos from local storage. Sets to empty if they dont exist
   name.value = localStorage.getItem("name") || ""; // this grabs name from local storage (browser)
   todos.value = JSON.parse(localStorage.getItem("todos")) || []; // this grabs the tasks
 });
 </script>
+
+<!-- v-model creates a two way binding between a component and a value -->
+
+<!-- @submit.prevent="addTodo" the '@submit' is shorthand for 'v-on:submit' and it listens for the submit event on a form-->
+<!-- the "prevent" is a modifier that tells vue to call "event.preventDefault()" -->
+<!-- addTodo is the method or function name to call -->
+<!-- in a nutshell the code says on submit prevent default event and call addTodo-->
 
 <template>
   <main class="app">
